@@ -15,7 +15,23 @@
   -->
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.2.0" name="fabric8-karaf-features-${project.version}">
 
-  <repository>mvn:io.fabric8.kubernetes/kubernetes-karaf/${kubernetes-client.version}/xml/features</repository>
+  <feature name="kubernetes-client" description="Fabric8 Kubernetes Client" version="${project.version}">
+    <bundle dependency='true'>mvn:javax.validation/validation-api/2.0.1.Final</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsr305/3.0.2_1</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-core/2.9.9</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-annotations/2.9.9</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.core/jackson-databind/2.9.9.3</bundle>
+    <bundle dependency='true'>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.9.9</bundle>
+    <bundle dependency='true'>mvn:org.yaml/snakeyaml/1.24</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.generex/1.0.1_1</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.automaton/1.11-8_1</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.conscrypt-openjdk/1.4.2_1</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.okhttp/3.12.0_1</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.okio/1.15.0_1</bundle>
+    <bundle>mvn:io.fabric8/zjsonpatch/0.3.0</bundle>
+    <bundle>mvn:io.fabric8/kubernetes-model/4.4.2</bundle>
+    <bundle>mvn:io.fabric8/kubernetes-client/4.4.2/jar/bundle</bundle>
+  </feature>
 
   <feature name="fabric8-karaf-core" description="Fabric8 Karaf Core" version="${project.version}">
     <feature>scr</feature>
@@ -38,7 +54,7 @@
 
   <feature name="fabric8-karaf-checks" description="Fabric8 Karaf Checks" version="${project.version}">
     <feature>scr</feature>
-    <feature>http</feature>
+    <feature>war</feature>
     <bundle start-level="65">mvn:io.fabric8/fabric8-karaf-checks/${project.version}</bundle>
   </feature>
 
