@@ -26,11 +26,22 @@
 
     <groupId>io.fabric8</groupId>
     <artifactId>fabric8-project</artifactId>
-    <version>3.0.12</version>
+    <version>3.0.13-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Fabric8</name>
     <description>Fabric8 the open source integration platform</description>
+
+    <distributionManagement>
+        <repository>
+            <id>SomosDigitalReleases</id>
+            <url>${nexus.url}/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>SomosDigitalSnapshots</id>
+            <url>${nexus.url}/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <url>http://fabric8.io/</url>
     <inceptionYear>2011</inceptionYear>
@@ -72,6 +83,7 @@
 
     <properties>
 
+        <nexus.url>https://nexus.devops.somosdigital.io</nexus.url>
         <!-- upstream vs redhat versions of dependencies goes here -->
         <activemq.version>5.14.5</activemq.version>
         <arquillian-cube.version>1.9.0</arquillian-cube.version>
@@ -137,7 +149,7 @@
         <jgit.version>4.10.0.201712302008-r</jgit.version>
         <json.version>20160212</json.version>
         <junit.version>4.12</junit.version>
-        <kubernetes-client.version>3.1.12</kubernetes-client.version>
+        <kubernetes-client.version>4.4.2</kubernetes-client.version>
         <log4j.version>1.2.17</log4j.version>
         <lombok.version>1.16.18</lombok.version>
         <maven.enforcer.version>3.2.3</maven.enforcer.version>
@@ -210,18 +222,6 @@
         <fuse.osgi.capabilities.require/>
     </properties>
 
-    <distributionManagement>
-      <repository>
-        <id>oss-sonatype-staging</id>
-        <name>Sonatype Staging Repository</name>
-        <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-      </repository>
-      <snapshotRepository>
-        <id>oss-sonatype-snapshots</id>
-        <name>OSS Sonatype Nexus Snapshots</name>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-      </snapshotRepository>
-    </distributionManagement>
 
     <!-- lets try not to add any 3rd party repositories, we want fabric8 to be nimble and only use whats in Maven Central -->
     <repositories>
@@ -1366,10 +1366,7 @@
 
     <modules>
         <module>parent</module>
-        <module>fabric8-apt</module>
         <module>components</module>
-        <module>hawt-app-maven-plugin</module>
-        <module>tooling</module>
     </modules>
 
     <build>
@@ -1427,220 +1424,6 @@
               </executions>
           </plugin>
           <plugin>
-              <groupId>io.sundr</groupId>
-              <artifactId>sundr-maven-plugin</artifactId>
-              <version>${sundrio.plugin.version}</version>
-              <configuration>
-                  <bomTemplateUrl>file:${urlSlashesOsModifier}${project.basedir}/custom-bom.xml.vm</bomTemplateUrl>
-                  <boms>
-                      <bom>
-                          <artifactId>fabric8-project-bom</artifactId>
-                          <name>Fabric8 :: Project :: Bom</name>
-                          <dependencies>
-                              <includes>
-                                  <include>io.fabric8:kubernetes-*</include>
-                                  <include>io.fabric8:openshift-*</include>
-                              </includes>
-                          </dependencies>
-                          <plugins>
-                              <includes>
-                                  <include>io.fabric8:*</include>
-                              </includes>
-                          </plugins>
-                          <properties>
-                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-                          </properties>
-                          <inheritPluginManagement>true</inheritPluginManagement>
-                      </bom>
-                      <bom>
-                          <artifactId>fabric8-project-bom-with-platform-deps</artifactId>
-                          <name>Fabric8 :: Project :: Bom with Platform Dependencies</name>
-                          <dependencies>
-                              <includes>
-                                  <!-- The kubernetes Client and Model -->
-                                  <include>io.fabric8:kubernetes-*</include>
-                                  <include>io.fabric8:openshift-*</include>
-
-                                  <include>javax*:*</include>
-                                  <!-- Core platform -->
-                                  <include>org.jboss.weld*:*</include>
-                                  <include>org.jboss.arquillian*:*</include>
-                                  <include>org.jboss.shrinkwrap*:*</include>
-                                  <include>org.apache.deltaspike*:*</include>
-                                  <!-- minor things that are easy to get wrong -->
-                                  <include>org.ops4j.pax.url:pax-url-aether</include>
-                                  <include>org.codehaus.plexus:plexus-utils</include>
-                                  <include>xml-apis:xml-apis</include>
-                              </includes>
-                          </dependencies>
-                          <plugins>
-                              <includes>
-                                  <include>io.fabric8:*</include>
-                              </includes>
-                          </plugins>
-                          <properties>
-                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-                          </properties>
-                          <inheritDependencyManagement>true</inheritDependencyManagement>
-                          <inheritPluginManagement>true</inheritPluginManagement>
-                      </bom>
-                      <bom>
-                          <artifactId>fabric8-project-bom-camel-spring-boot</artifactId>
-                          <name>Fabric8 :: Project :: Bom for Camel and Spring-Boot</name>
-                          <dependencies>
-                              <includes>
-                                  <!-- The kubernetes Client and Model -->
-                                  <include>io.fabric8:kubernetes-*</include>
-                                  <include>io.fabric8:openshift-*</include>
-
-                                  <include>javax*:*</include>
-
-                                  <include>org.jboss.arquillian*:*</include>
-                                  <include>org.jboss.shrinkwrap*:*</include>
-                                  <include>org.assertj*:*</include>
-
-                                  <include>xml-apis:xml-apis</include>
-
-                                  <include>org.apache.cxf:cxf-spring-boot-starter-jaxrs</include>
-                                  <include>org.apache.cxf:cxf-spring-boot-starter-jaxws</include>
-                                  <include>org.apache.cxf:cxf-rt-rs-service-description-swagger</include>
-                                  <include>io.swagger:*</include>
-                              </includes>
-                              <excludes>
-                                  <exclude>javax.servlet:javax.servlet-api</exclude>
-                                  <exclude>javax.activation:activation:1.1</exclude>
-                              </excludes>
-                          </dependencies>
-                          <imports>
-                              <import>
-                                  <groupId>org.springframework.boot</groupId>
-                                  <artifactId>spring-boot-dependencies</artifactId>
-                                  <version>${spring.boot.version}</version>
-                                  <dependencyManagement>
-                                      <includes>
-                                          <include>*:*</include>
-                                      </includes>
-                                      <excludes>
-                                          <exclude>org.assertj*:*</exclude>
-                                      </excludes>
-                                  </dependencyManagement>
-                              </import>
-                              <import>
-                                  <groupId>org.apache.camel</groupId>
-                                  <artifactId>camel-spring-boot-dependencies</artifactId>
-                                  <version>${camel.version}</version>
-                                  <dependencyManagement>
-                                      <includes>
-                                          <include>*:*</include>
-                                      </includes>
-                                      <excludes>
-                                          <exclude>io.fabric8*:*</exclude>
-                                      </excludes>
-                                  </dependencyManagement>
-                              </import>
-                              <import>
-                                  <groupId>org.arquillian.cube</groupId>
-                                  <artifactId>arquillian-cube-bom</artifactId>
-                                  <version>${arquillian-cube.version}</version>
-                                  <dependencyManagement>
-                                      <includes>
-                                          <include>org.arquillian.cube:*</include>
-                                      </includes>
-                                  </dependencyManagement>
-                              </import>
-                              <import>
-                                  <groupId>io.fabric8</groupId>
-                                  <artifactId>spring-cloud-kubernetes-bom-with-platform-deps</artifactId>
-                                  <version>${spring-cloud-kubernetes.version}</version>
-                                  <dependencyManagement>
-                                      <includes>
-                                          <include>*:*</include>
-                                      </includes>
-                                      <excludes>
-                                          <exclude>org.springframework:*</exclude>
-                                          <exclude>org.springframework.boot:*</exclude>
-                                          <exclude>commons-lang:commons-lang</exclude>
-                                          <exclude>io.fabric8:kubernetes-*</exclude>
-                                          <exclude>io.fabric8:openshift-*</exclude>
-                                          <exclude>com.squareup.okhttp:*</exclude>
-                                          <exclude>com.squareup.okio:*</exclude>
-                                      </excludes>
-                                  </dependencyManagement>
-                              </import>
-                          </imports>
-                          <plugins>
-                              <includes>
-                                  <include>io.fabric8:*</include>
-                              </includes>
-                          </plugins>
-                          <properties>
-                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-                          </properties>
-                          <inheritDependencyManagement>true</inheritDependencyManagement>
-                          <inheritPluginManagement>true</inheritPluginManagement>
-                      </bom>
-                      <bom>
-                          <artifactId>fabric8-project-bom-fuse-karaf</artifactId>
-                          <name>Fabric8 :: Project :: Bom for Fuse Applications on Karaf</name>
-                          <dependencies>
-                              <includes>
-                                  <!-- The kubernetes Client and Model -->
-                                  <include>io.fabric8:kubernetes-*</include>
-                                  <include>io.fabric8:openshift-*</include>
-
-                                  <include>io.fabric8:fabric8-karaf*</include>
-                                  <include>io.fabric8.kubernetes:*</include>
-
-                                  <include>javax*:*</include>
-
-                                  <include>org.jboss.arquillian*:*</include>
-                                  <include>org.jboss.shrinkwrap*:*</include>
-
-                                  <include>xml-apis:xml-apis</include>
-
-                                  <!-- JBoss Fuse kar -->
-                                  <include>org.jboss.fuse:fuse-karaf-framework:${fuse.version}:kar</include>
-                              </includes>
-                              <excludes>
-                                  <exclude>javax.servlet:javax.servlet-api</exclude>
-                                  <exclude>javax.activation:activation:1.1</exclude>
-                              </excludes>
-                          </dependencies>
-                          <imports>
-                              <import>
-                                  <groupId>org.jboss.fuse.bom</groupId>
-                                  <artifactId>jboss-fuse-parent</artifactId>
-                                  <version>${fuse.version}</version>
-                                  <repository>https://maven.repository.redhat.com/ga</repository>
-                                  <dependencyManagement>
-                                      <includes>
-                                          <include>*:*</include>
-                                      </includes>
-                                  </dependencyManagement>
-                              </import>
-                          </imports>
-                          <plugins>
-                              <includes>
-                                  <include>io.fabric8:*</include>
-                              </includes>
-                          </plugins>
-                          <properties>
-                              <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-                          </properties>
-                          <inheritDependencyManagement>true</inheritDependencyManagement>
-                          <inheritPluginManagement>true</inheritPluginManagement>
-                      </bom>
-                  </boms>
-              </configuration>
-              <executions>
-                  <execution>
-                      <goals>
-                          <goal>generate-bom</goal>
-                      </goals>
-                  </execution>
-              </executions>
-          </plugin>
-          <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-compiler-plugin</artifactId>
               <version>${compiler.plugin.version}</version>
@@ -1679,39 +1462,6 @@
                   </archive>
               </configuration>
           </plugin>
-          <!-- Set properties containing the scm revision and build timestamp -->
-          <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>buildnumber-maven-plugin</artifactId>
-              <version>${buildnumber.plugin.version}</version>
-              <executions>
-                  <execution>
-                      <id>get-build-timestamp</id>
-                      <phase>initialize</phase>
-                      <goals>
-                          <goal>create-timestamp</goal>
-                      </goals>
-                      <configuration>
-                          <!-- Example date: Wed, 4 Jul 2001 12:08:56 -0700 -->
-                          <timestampFormat>EEE, d MMM yyyy HH:mm:ss Z</timestampFormat>
-                          <timestampPropertyName>build.datetime</timestampPropertyName>
-                      </configuration>
-                  </execution>
-                  <execution>
-                      <id>get-scm-revision</id>
-                      <phase>initialize</phase>
-                      <goals>
-                          <goal>create</goal>
-                      </goals>
-                      <configuration>
-                          <doCheck>false</doCheck>
-                          <doUpdate>false</doUpdate>
-                          <revisionOnScmFailure>UNKNOWN</revisionOnScmFailure>
-                          <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
-                      </configuration>
-                  </execution>
-              </executions>
-          </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
@@ -1724,252 +1474,6 @@
             </nonFilteredFileExtensions>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>${maven.enforcer.plugin.version}</version>
-          <executions>
-            <execution>
-              <id>enforce-versions</id>
-              <goals>
-                <goal>enforce</goal>
-              </goals>
-              <configuration>
-                <rules>
-                  <requireMavenVersion>
-                    <version>${maven.enforcer.version}</version>
-                  </requireMavenVersion>
-                </rules>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.5</version>
-          <configuration>
-            <passphrase>${gpg.passphrase}</passphrase>
-            <useAgent>true</useAgent>
-          </configuration>
-        </plugin>
       </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>site</id>
-            <modules>
-                <module>website</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>distro</id>
-            <modules>
-            </modules>
-        </profile>
-        <profile>
-            <id>release</id>
-            <properties>
-            </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
-                            <excludes>
-                                <exclude>io/fabric8/arquillian/DependencyResolverTest.java</exclude>
-                                <exclude>io/fabric8/cdi/weld/internal/ExtensionInternalTest.java</exclude>
-                                <exclude>io/fabric8/cdi/weld/external/ExtensionExternalTest.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>1.3.1</version>
-                        <executions>
-                            <execution>
-                                <id>enforce-no-snapshots</id>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <requireReleaseDeps>
-                                            <message>No Snapshots Allowed!</message>
-                                        </requireReleaseDeps>
-                                    </rules>
-                                    <fail>true</fail>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <configuration>
-                                    <additionalparam>${javadoc.opts}</additionalparam>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>camel-snapshot</id>
-            <properties>
-                <camel.version>2.18-SNAPSHOT</camel.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>kubernetes-model-snapshot</id>
-            <properties>
-                <kubernetes-model.version>1.0.30-SNAPSHOT</kubernetes-model.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>example-itest</id>
-            <modules>
-                <!-- This is just an example. Can cause recursive dependency confusion so lets disable for now unless this profile is enabled  -->
-                <module>itests</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>license</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.mycila</groupId>
-                        <artifactId>license-maven-plugin</artifactId>
-                        <version>2.6</version>
-                        <configuration>
-                            <includes>
-                                <include>src/main/java/**</include>
-                                <include>src/test/java/**</include>
-                                <include>pom.xml</include>
-                                <include>**/*.xml</include>
-                                <include>**/*.cfg</include>
-                                <include>**/*.properties</include>
-                            </includes>
-                            <excludes>
-                                <!-- exclude sampel data -->
-                                <exclude>**/src/data/**</exclude>
-                                <exclude>**/resources/data/**</exclude>
-                                <!-- exclude hidden dir -->
-                                <exclude>**/.*/**</exclude>
-                            </excludes>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>tattletale</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jboss.tattletale</groupId>
-                        <artifactId>tattletale-maven</artifactId>
-                        <!-- The version of the plugin you want to use -->
-                        <version>1.1.0.Final</version>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <!-- This is the location which will be scanned for generating tattletale reports
-                              -->
-                            <source>${project.basedir}</source>
-                            <excludes>
-                                <exclude>${project.basedir}/sandbox/**</exclude>
-                                <exclude>${project.basedir}/website/**</exclude>
-                            </excludes>
-                            <!-- This is where the reports will be generated -->
-                            <destination>${project.build.directory}/reports</destination>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>sun-tools-1.7</id>
-            <activation>
-                <jdk>1.7</jdk>
-            </activation>
-            <properties>
-                <sun.tools.version>1.8</sun.tools.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>sun-tools-1.8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <properties>
-                <sun.tools.version>1.8</sun.tools.version>
-            </properties>
-        </profile>
-        <profile>
-          <id>doclint-java8-disable</id>
-          <activation>
-            <jdk>[1.8,)</jdk>
-          </activation>
-          <properties>
-              <javadoc.opts>-Xdoclint:none</javadoc.opts>
-          </properties>
-        </profile>
-    </profiles>
-
 </project>
